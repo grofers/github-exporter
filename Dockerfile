@@ -11,9 +11,13 @@ RUN go get \
  && go test ./... \
  && go build -o /bin/main
 
+ENV LISTEN_PORT=8080
+EXPOSE 8080
+ENTRYPOINT [ "/bin/main" ]
+
 FROM alpine:3.6
 
-RUN apk --no-cache add ca-certificates \
+RUN apk --no-cache add bash ca-certificates \
      && addgroup exporter \
      && adduser -S -G exporter exporter
 USER exporter
