@@ -37,6 +37,7 @@ func main() {
 	prometheus.MustRegister(&exporter)
 
 	// Setup HTTP handler
+	log.Info("Starting HTTP server at " + applicationCfg.ListenPort())
 	http.Handle(applicationCfg.MetricsPath(), prometheus.Handler())
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte(`<html>
