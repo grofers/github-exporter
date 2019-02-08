@@ -13,11 +13,11 @@ func AddMetrics() map[string]*prometheus.Desc {
 		"Total number of Stars for given repository",
 		[]string{"repo", "user", "private", "fork", "archived", "license", "language"}, nil,
 	)
-	APIMetrics["OpenIssues"] = prometheus.NewDesc(
-		prometheus.BuildFQName("github", "repo", "open_issues"),
-		"Total number of open issues for given repository",
-		[]string{"repo", "user", "private", "fork", "archived", "license", "language"}, nil,
-	)
+//	APIMetrics["OpenIssues"] = prometheus.NewDesc(
+//		prometheus.BuildFQName("github", "repo", "open_issues"),
+//		"Total number of open issues for given repository",
+//		[]string{"repo", "user", "private", "fork", "archived", "license", "language"}, nil,
+//	)
 	APIMetrics["Watchers"] = prometheus.NewDesc(
 		prometheus.BuildFQName("github", "repo", "watchers"),
 		"Total number of watchers/subscribers for given repository",
@@ -31,6 +31,11 @@ func AddMetrics() map[string]*prometheus.Desc {
 	APIMetrics["Size"] = prometheus.NewDesc(
 		prometheus.BuildFQName("github", "repo", "size_kb"),
 		"Size in KB for given repository",
+		[]string{"repo", "user", "private", "fork", "archived", "license", "language"}, nil,
+	)
+	APIMetrics["OpenPullRequests"] = prometheus.NewDesc(
+		prometheus.BuildFQName("github", "repo", "open_prs"),
+		"Total number of open pull requests",
 		[]string{"repo", "user", "private", "fork", "archived", "license", "language"}, nil,
 	)
 	APIMetrics["Limit"] = prometheus.NewDesc(
@@ -59,9 +64,10 @@ func (e *Exporter) processMetrics(data []*Datum, rates *RateLimits, ch chan<- pr
 	for _, x := range data {
 		ch <- prometheus.MustNewConstMetric(e.APIMetrics["Stars"], prometheus.GaugeValue, x.Stars, x.Name, x.Owner.Login, strconv.FormatBool(x.Private), strconv.FormatBool(x.Fork), strconv.FormatBool(x.Archived), x.License.Key, x.Language)
 		ch <- prometheus.MustNewConstMetric(e.APIMetrics["Forks"], prometheus.GaugeValue, x.Forks, x.Name, x.Owner.Login, strconv.FormatBool(x.Private), strconv.FormatBool(x.Fork), strconv.FormatBool(x.Archived), x.License.Key, x.Language)
-		ch <- prometheus.MustNewConstMetric(e.APIMetrics["OpenIssues"], prometheus.GaugeValue, x.OpenIssues, x.Name, x.Owner.Login, strconv.FormatBool(x.Private), strconv.FormatBool(x.Fork), strconv.FormatBool(x.Archived), x.License.Key, x.Language)
+        //ch <- prometheus.MustNewConstMetric(e.APIMetrics["OpenIssues"], prometheus.GaugeValue, x.OpenIssues, x.Name, x.Owner.Login, strconv.FormatBool(x.Private), strconv.FormatBool(x.Fork), strconv.FormatBool(x.Archived), x.License.Key, x.Language)
 		ch <- prometheus.MustNewConstMetric(e.APIMetrics["Watchers"], prometheus.GaugeValue, x.Watchers, x.Name, x.Owner.Login, strconv.FormatBool(x.Private), strconv.FormatBool(x.Fork), strconv.FormatBool(x.Archived), x.License.Key, x.Language)
 		ch <- prometheus.MustNewConstMetric(e.APIMetrics["Size"], prometheus.GaugeValue, x.Size, x.Name, x.Owner.Login, strconv.FormatBool(x.Private), strconv.FormatBool(x.Fork), strconv.FormatBool(x.Archived), x.License.Key, x.Language)
+		ch <- prometheus.MustNewConstMetric(e.APIMetrics["OpenPullRequests"], prometheus.GaugeValue, float64(len(x.OpenPullRequests)), x.Name, x.Owner.Login, strconv.FormatBool(x.Private), strconv.FormatBool(x.Fork), strconv.FormatBool(x.Archived), x.License.Key, x.Language)
 
 	}
 

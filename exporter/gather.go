@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"strconv"
+	"strings"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -20,20 +21,27 @@ func (e *Exporter) gatherData() ([]*Datum, *RateLimits, error) {
 	}
 
 	for _, response := range responses {
+		log.Debug("Github API Request URL: %s", response.url)
+		if strings.Contains(response.url, "pulls") {
+			pulls := []*PullRequest{}
+			json.Unmarshal(response.body, &pulls)
+			data[len(data) - 1].OpenPullRequests = pulls
 
-		// Github can at times present an array, or an object for the same data set.
-		// This code checks handles this variation.
-		if isArray(response.body) {
-			ds := []*Datum{}
-			json.Unmarshal(response.body, &ds)
-			data = append(data, ds...)
+			log.Infof("API data fetched for pull requests for repository: %s", response.url)
 		} else {
-			d := new(Datum)
-			json.Unmarshal(response.body, &d)
-			data = append(data, d)
+			// Github can at times present an array, or an object for the same data set.
+			// This code checks handles this variation.
+			if isArray(response.body) {
+				ds := []*Datum{}
+				json.Unmarshal(response.body, &ds)
+				data = append(data, ds...)
+			} else {
+				d := new(Datum)
+				json.Unmarshal(response.body, &d)
+				data = append(data, d)
+			}
+			log.Infof("API data fetched for repository: %s", response.url)
 		}
-
-		log.Infof("API data fetched for repository: %s", response.url)
 	}
 
 	// Check the API rate data and store as a metric

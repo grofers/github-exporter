@@ -63,7 +63,7 @@ func getScrapeURLs(apiURL, repos, orgs, users string) ([]string, error) {
 
 	urls := []string{}
 
-	opts := "?&per_page=100" // Used to set the Github API to return 100 results per page (max)
+	opts := "?&state=open&per_page=100" // Used to set the Github API to return 100 results per page (max)
 
 	// User input validation, check that either repositories or organisations have been passed in
 	if len(repos) == 0 && len(orgs) == 0 && len(users) == 0 {
@@ -75,6 +75,8 @@ func getScrapeURLs(apiURL, repos, orgs, users string) ([]string, error) {
 		rs := strings.Split(repos, ", ")
 		for _, x := range rs {
 			y := fmt.Sprintf("%s/repos/%s%s", apiURL, x, opts)
+			z := fmt.Sprintf("%s/repos/%s/pulls%s", apiURL, x, opts)
+			urls = append(urls, z)
 			urls = append(urls, y)
 		}
 	}

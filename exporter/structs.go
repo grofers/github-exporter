@@ -37,6 +37,22 @@ type Datum struct {
 	OpenIssues float64 `json:"open_issues"`
 	Watchers   float64 `json:"subscribers_count"`
 	Size       float64 `json:"size"`
+
+	// Computed
+	OpenPullRequests                  []*PullRequest
+	MergedPullRequestsWithoutApproval []PullRequest
+}
+
+type PullRequest struct {
+	State  string `json:"state"`
+	Locked string `json:"locked"`
+	User   struct {
+		Login string `json:"login"`
+	} `json:"user"`
+	Merged     bool `json:"merged"`
+	Mergeable  bool `json:"mergeable"`
+	Rebaseable bool `json:"rebaseable"`
+	Reviewed   bool
 }
 
 // RateLimits is used to store rate limit data into a struct
